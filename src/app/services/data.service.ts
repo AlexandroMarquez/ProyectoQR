@@ -56,4 +56,4 @@ isAuthenticatedStatus(): boolean {
         console.error('Error al autenticar al usuario:', error);
         return false;
       });
-  }
+  }}

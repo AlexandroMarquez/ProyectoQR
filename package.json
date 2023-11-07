@@ -30,6 +30,7 @@
     "@capacitor/status-bar": "5.0.6",
     "@ionic/angular": "^7.0.0",
     "@zxing/ngx-scanner": "^16.1.0",
+    "dexie": "^3.2.4",
     "firebase": "^10.5.2",
     "ionicons": "^7.0.0",
     "rxjs": "~7.8.0",
