@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Preferences } from '@capacitor/preferences';
 import { AlertController } from '@ionic/angular';
-
+import { Router } from '@angular/router'; 
 @Component({
   selector: 'app-reset-password',
   templateUrl: './reset-password.page.html',
@@ -13,46 +13,44 @@ export class ResetPasswordPage {
   resetForm: FormGroup;
   correo: string = ''; // Declaración de la variable correo
 
-  constructor(private fb: FormBuilder, private alertController: AlertController) {
+  constructor(private fb: FormBuilder, private alertController: AlertController, private router: Router) {
     this.resetForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
     });
   }
 
   async reset() {
-    const f = this.resetForm.value;
-    const userJSON = await Preferences.get({ key: 'usuarioData' });
-
+    const f = this.resetForm.value;  
+    // Obtener los datos del usuario almacenados en capacitorStorage
+    const userResult = await Preferences.get({ key: 'usuarioData' });
     console.log(f);
-    console.log(userJSON);
-    if (userJSON && userJSON.value) {
-      const userData = JSON.parse(userJSON.value);
-      console.log(userData);
+    console.log(userResult);
+  
+    if (userResult && userResult.value) {
+      // Parsear el valor de usuarioData a un arreglo de objetos
+      const userDataArray = JSON.parse(userResult.value);
+  
+      if (Array.isArray(userDataArray) && userDataArray.length > 0) {
+        // Obtener el primer objeto del arreglo (suponiendo que haya solo uno)
+        const userData = userDataArray[0];
+  
+        // Verificar si el correo ingresado por el usuario coincide con el correo almacenado
+        if (userData && userData.correo === f.email) {
+          console.log('El correo es correcto. Se Ha enviado un correo de restablecimiento.');
+          this.router.navigate(['/set-password']);
 
-      if (userData && userData.correo) {
-        this.correo = userData.correo; 
-        console.log(userData);
-        console.log(userData.correo);
+        } else {
+          // El correo no coincide con el registrado.
+          console.log('El correo ingresado no coincide con el correo registrado.');
+        }
       } else {
-        // Maneja el caso en el que no se encontró 'correo' en los datos del usuario.
+        // El valor de usuarioData no es un arreglo válido o está vacío.
+        console.log('El valor de usuarioData no es válido o está vacío.');
       }
     } else {
-      // Maneja el caso en el que 'usuarioData' es nulo o no contiene 'value'.
-    }
-
-    if (f.email === this.correo) {
-      // Envía un correo de restablecimiento de contraseña a la dirección de correo proporcionada.
-      // Agrega tu lógica para enviar el correo.
-      console.log("el correo es correcto");
-
-      // Por ejemplo:
-      // Enviar un correo a f.email con un enlace para restablecer la contraseña.
-
-      // Luego puedes mostrar un mensaje al usuario informando que se ha enviado un correo de restablecimiento.
-      alert('Se ha enviado un correo de restablecimiento de contraseña a ' + f.email);
-    } else {
-      // Si el correo no coincide con el registrado, muestra un mensaje de error.
-      alert('El correo ingresado no se encuentra registrado.');
+      // No se pudo obtener usuarioData o su valor.
+      console.log('No se pudo obtener los datos del usuario.');
     }
   }
+  
 }
