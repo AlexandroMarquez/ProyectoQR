@@ -15,14 +15,39 @@ export class SetPasswordPage {
 
   constructor(private fb: FormBuilder, private alertController: AlertController, private router: Router) {
     this.setForm = this.fb.group({
-      password: ['', [Validators.required]],
+      Password: ['', [Validators.required]],
     });
   }
 
+  // async setPassword() {
+  //   const f = this.setForm.value;
+  //   const userResult = await Preferences.get({ key: 'usuarioData' });
+  //   console.log(f);
+  //   console.log(userResult);
+  // }
   async setPassword() {
     const f = this.setForm.value;
+  
     const userResult = await Preferences.get({ key: 'usuarioData' });
-    console.log(f);
+  
+    console.log(f.Password);
     console.log(userResult);
+  
+    if (userResult && userResult.value) {
+      const userData: { correo: string; nombre: string; apellido: string; rut: string; contrasena: string }[] = JSON.parse(userResult.value);
+  
+      console.log(userData[0].contrasena);
+  
+      // Actualiza la contraseña correctamente
+      userData[0].contrasena = f.Password;
+  
+      await Preferences.set({ key: 'usuarioData', value: JSON.stringify(userData) });
+  
+      console.log('Contraseña actualizada con éxito.');
+    } else {
+      console.error('No se pudieron encontrar los datos del usuario en el almacenamiento.');
+    }
   }
+  
+  
 }
